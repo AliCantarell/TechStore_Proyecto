@@ -1,0 +1,54 @@
+import mysql.connector
+import requests
+import time
+
+# --- CONFIGURACIÓN DE SOLACE ---
+# URL para consumir mensajes de la cola vía REST
+URL_SOLACE = "https://mr-connection-t8jwqife9hr.messaging.solace.cloud:9443/QUEUE/mi_primera_cola"
+AUTH = ("solace-cloud-client", "3oqfe7ru6qsc2qigsu1jhrtgcf")
+
+# --- CONEXIÓN A BASE DE DATOS ---
+def conectar_db():
+    return mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="$marcielo54", # <--- ASEGÚRATE DE PONER TU CONTRASEÑA REAL AQUÍ
+        database="techstore_db"
+    )
+
+print("Iniciando cliente (Escuchando mensajes)...")
+
+
+
+while True:
+    try:
+        # CAMBIO: Usamos POST en lugar de GET
+        # En Solace REST, POST a una cola significa "Dame el mensaje y bórralo de la cola"
+        response = requests.post(URL_SOLACE, auth=AUTH, verify=False)
+        
+        if response.status_code == 200:
+            mensaje = response.text
+            print(f"¡MENSAJE RECIBIDO!: {mensaje}")
+            
+            # --- Guardar en MySQL ---
+            # Asegúrate de usar la conexión aquí dentro del bloque de éxito
+            db = conectar_db()
+            cursor = db.cursor()
+            sql = "INSERT INTO registro_mensajes (contenido) VALUES (%s)"
+            cursor.execute(sql, (mensaje,))
+            db.commit()
+            cursor.close()
+            db.close()
+            print("-> Guardado en MySQL con éxito.")
+        
+        elif response.status_code == 204:
+            # Cola vacía, todo bien.
+            time.sleep(1)
+        else:
+            # Si sale algo distinto, imprimimos para saber por qué
+            print(f"Estado del servidor: {response.status_code} - {response.reason}")
+            time.sleep(2)
+            
+    except Exception as e:
+        print(f"Error: {e}")
+        time.sleep(5)

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TechStore - Panel </title>
+
+   
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+
+   
+
+    <style>
+
+        body {
+
+            background-color: #050505;
+
+            color: #ffffff;
+
+            font-family: 'Montserrat', sans-serif;
+
+        }
+
+
+
+        .text-accent { color: #f37021 !important; }
+
+        .bg-accent { background-color: #f37021 !important; }
+
+       
+
+        h1, h2, h5, .brand-text {
+
+            font-weight: 900;
+
+            text-transform: uppercase;
+
+            letter-spacing: -1px;
+
+        }
+
+
+
+        .navbar {
+
+            background-color: #0a0a0a;
+
+            border-bottom: 1px solid #222;
+
+        }
+
+
+
+        .card {
+
+            background-color: #111111;
+
+            border: 1px solid #222;
+
+            border-radius: 4px;
+
+            transition: all 0.3s ease;
+
+            cursor: pointer;
+
+            overflow: hidden;
+
+        }
+
+
+
+        .card:hover {
+
+            border-color: #f37021;
+
+            box-shadow: 0 10px 25px rgba(243, 112, 33, 0.15);
+
+            transform: translateY(-5px);
+
+        }
+
+
+
+      
+
+        .card-img-top-real {
+
+            width: 100%;
+
+            height: 180px;
+
+            object-fit: cover; 
+
+            border-bottom: 2px solid #f37021;
+
+            filter: brightness(0.8); 
+
+            transition: 0.3s;
+
+        }
+
+
+
+        .card:hover .card-img-top-real {
+
+            filter: brightness(1); 
+
+        }
+
+
+
+        .badge-custom {
+
+            position: absolute;
+
+            top: 10px;
+
+            left: 10px;
+
+            border: 1px solid #f37021;
+
+            background-color: rgba(0,0,0,0.7);
+
+            color: #f37021;
+
+            font-size: 0.65rem;
+
+            font-weight: 700;
+
+            padding: 4px 8px;
+
+            z-index: 2;
+
+        }
+
+
+
+        .btn-accent {
+
+            background-color: transparent;
+
+            border: 1px solid #f37021;
+
+            color: #f37021;
+
+            font-weight: 700;
+
+            transition: 0.3s;
+
+        }
+
+
+
+        .btn-accent:hover { background-color: #f37021; color: #000; }
+
+
+
+        .filter-bar { border-bottom: 1px solid #222; padding-bottom: 1rem; margin-bottom: 2rem; }
+
+        .filter-item { color: #666; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; margin-right: 1.5rem; cursor: pointer; transition: 0.2s; }
+
+        .filter-item:hover { color: #fff; }
+
+        .filter-item.active { color: #f37021; border-bottom: 2px solid #f37021; padding-bottom: 14px; }
+
+
+
+        .modal-content { background-color: #111111; border: 1px solid #f37021; color: white; }
+
+        .modal-header { border-bottom: 1px solid #222; }
+
+        .modal-footer { border-top: 1px solid #222; }
+
+    </style>
+
+</head>
+
+<body onload="obtenerDatosBackend()">
+
+
+
+    <nav class="navbar navbar-dark py-3">
+
+        <div class="container">
+
+            <span class="navbar-brand brand-text fs-3">TECH<span class="text-accent">STORE</span></span>
+
+            <span class="text-light small fw-bold"><i class="bi bi-shield-check text-accent"></i> PANEL CONECTADO</span>
+
+        </div>
+
+    </nav>
+
+
+
+    <div class="container mt-5">
+
+        <div class="mb-5">
+
+            <h1 class="display-4 mb-0">CATÁLOGO <span class="text-accent">PRODUCTOS</span></h1>
+
+            <p class="text-secondary small">Disfruta de tus productos</p>
+
+        </div>
+
+
+
+        <div class="filter-bar d-flex" id="barra-filtros">
+    <span class="filter-item active" onclick="filtrarCategoria(0, this)">TODOS</span>
+    <span class="filter-item" onclick="filtrarCategoria(1, this)">LAPTOPS</span>
+    <span class="filter-item" onclick="filtrarCategoria(3, this)">HARDWARE</span>
+    <span class="filter-item" onclick="filtrarCategoria(2, this)">MÓVILES</span>
+    <span class="filter-item" onclick="filtrarCategoria(4, this)">PERIFÉRICOS</span>
+    <span class="filter-item" onclick="filtrarCategoria(5, this)">AUDIO</span>
+</div>
+
+
+
+        <div class="row" id="contenedor-productos">
+
+            <div class="text-center mt-5"><div class="spinner-border text-accent" role="status"></div></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="modal fade" id="modalProducto" tabindex="-1" aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title" id="modalNombre">NOMBRE DEL PRODUCTO</h5>
+
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                </div>
+
+                <div class="modal-body text-center p-0">
+
+                    <img id="modalImagen" src="" alt="Producto" style="width: 100%; height: 250px; object-fit: cover; border-bottom: 1px solid #f37021;">
+
+                    <div class="py-4">
+
+                        <p class="text-secondary mb-2">Precio de Venta Autorizado:</p>
+
+                        <h2 class="text-accent" id="modalPrecio">$0.00</h2>
+
+                    </div>
+
+                </div>
+
+               <div class="modal-footer flex-wrap">
+
+                    <div id="status-venta" class="w-100 text-start small fw-bold mb-2"></div>
+
+                   
+
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+
+                    <button type="button" class="btn bg-accent text-black btn-sm fw-bold" onclick="realizarPedido()">Proceder a Venta</button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+    <script>
+
+        let todosLosProductos = [];
+        function obtenerDatosBackend() {
+
+            fetch('http://127.0.0.1:8000/')
+
+                .then(respuesta => respuesta.json())
+
+                .then(datos => {
+
+                    console.log("Datos recibidos:", datos);
+
+                
+                const lista = datos.productos || datos; 
+                todosLosProductos = lista;
+                mostrarProductos(lista);
+
+                })
+
+                .catch(error => {
+
+                    console.error("Error al conectar:", error);
+
+                    document.getElementById('contenedor-productos').innerHTML =
+
+                        '<div class="col-12 text-center mt-5"><h4 class="text-accent">REVISA LA CONSOLA F12</h4></div>';
+
+                });
+
+        };
+
+
+
+        function filtrarCategoria(idCat, elementoClickeado) {
+   
+    const items = document.querySelectorAll('.filter-item');
+    items.forEach(item => item.classList.remove('active'));
+    elementoClickeado.classList.add('active');
+
+    
+    if (idCat === 0) {
+    
+        mostrarProductos(todosLosProductos);
+    } else {
+        
+        const filtrados = todosLosProductos.filter(p => Number(p.id_categoria) === Number(idCat));
+        mostrarProductos(filtrados);
+    }
+}
+function mostrarProductos(lista) {
+    const contenedor = document.getElementById('contenedor-productos');
+    contenedor.innerHTML = '';
+
+    if (!lista || lista.length === 0) {
+        contenedor.innerHTML = '<div class="col-12 text-center text-muted mt-4">No hay productos.</div>';
+        return;
+    }
+
+    lista.forEach(producto => {
+        const tarjeta = `
+        <div class="col-md-4 col-lg-3 mb-4">
+            <div class="card h-100" onclick="verDetalles('${producto.nombre}', '$${producto.precio_venta}', '${producto.url_imagen}')">
+                <div style="position: relative;">
+                    <span class="badge-custom">STOCK</span>
+                    <img src="${producto.url_imagen}" class="card-img-top-real" alt="${producto.nombre}">
+                </div>
+                <div class="card-body">
+<p class="text-accent small mb-1 fw-bold">${producto.marca}</p>
+                    <h5 class="card-title text-light mb-0 fs-6">${producto.nombre}</h5>
+                </div>
+                <div class="card-footer bg-transparent border-0 pb-4 d-flex justify-content-between align-items-center">
+                    <span class="text-light fw-bold">$${producto.precio_venta}</span>
+                    <button class="btn btn-accent btn-sm px-2 py-1"><i class="bi bi-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>`;
+        contenedor.innerHTML += tarjeta;
+    });
+}
+
+
+        
+
+        function verDetalles(nombre, precio, urlImagen) {
+
+            document.getElementById('modalNombre').innerText = nombre;
+
+            document.getElementById('modalPrecio').innerText = precio;
+
+            document.getElementById('modalImagen').src = urlImagen;
+
+           
+
+            const miModal = new bootstrap.Modal(document.getElementById('modalProducto'));
+
+            miModal.show();
+
+        }
+
+        async function realizarPedido() {
+        const statusDiv = document.getElementById('status-venta');
+        statusDiv.innerText = "⏳ Enviando...";
+        
+    
+        const pedido = {
+            id_equipamiento: 1, 
+            cantidad: 1,
+            cliente: "Jesús"
+        };
+
+        try {
+            const res = await fetch('http://127.0.0.1:8000/enviar_pedido', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(pedido)
+            });
+            
+            const data = await res.json();
+            
+            if (data.status === 'Éxito') {
+                statusDiv.innerText = "✅ ¡Éxito! Evento encolado en Solace.";
+                statusDiv.className = "w-100 text-start small fw-bold mb-2 text-success";
+            } else {
+                statusDiv.innerText = "❌ Error: " + (data.mensaje || "Error en el servidor");
+                statusDiv.className = "w-100 text-start small fw-bold mb-2 text-danger";
+            }
+        } catch (err) {
+            statusDiv.innerText = "❌ Error: Servidor no responde.";
+            statusDiv.className = "w-100 text-start small fw-bold mb-2 text-danger";
+        }
+    }
+
+    </script>
+
+</body>
+
+</html> 

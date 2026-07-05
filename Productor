@@ -1,0 +1,31 @@
+import requests
+
+# URL actualizada a TOPIC
+rest_url = "https://mr-connection-t8jwqife9hr.messaging.solace.cloud:9443/TOPIC/ventas"
+
+user = "solace-cloud-client"
+password = "123456789"
+
+headers = {
+    'Content-Type': 'text/plain',
+    'Solace-delivery-mode': 'direct'
+}
+
+mensaje = "Venta exitosa del producto 123"
+
+try:
+    response = requests.post(
+        rest_url, 
+        data=mensaje, 
+        auth=(user, password), 
+        headers=headers, 
+        verify=False
+    )
+
+    if response.status_code == 200:
+        print("¡ÉXITO! Mensaje enviado correctamente al TOPIC.")
+    else:
+        print(f"Error {response.status_code}: {response.text}")
+
+except Exception as e:
+    print(f"Error de conexión: {e}")
