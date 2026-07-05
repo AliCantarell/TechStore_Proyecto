@@ -4,6 +4,7 @@ import mysql.connector
 from pydantic import BaseModel
 import requests
 import os
+from typing import Optional
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -38,12 +39,13 @@ class Pedido(BaseModel):
 
 @app.get("/categorias")
 def obtener_categorias():
-   
-    cursor.execute("SELECT id_categoria, nombre FROM categorias")
-    return cursor.fetchall()
+ conn = get_db_connection()  
+ cursor = conn.cursor()
+ cursor.execute("SELECT id_categoria, nombre FROM categorias")
+ return cursor.fetchall()
 
 @app.get("/") 
-def obtener_productos(categoria_id: int = None):
+def obtener_productos(categoria_id: Optional[int] = None):
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
