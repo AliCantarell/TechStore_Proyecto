@@ -24,10 +24,10 @@ app.add_middleware(
 
 
 def get_db_connection():
-    return mysql.connector.connect(
+    return mysql.connector.connect(  #Marivi esta es la conexion que se tiene de la base de datos al backet, por eso pide las contraseñas
         host="localhost",
         user="root",
-        password=DB_PASSWORD,
+        password=DB_PASSWORD,  #nota Marivi aqui esta la contraseña del MSQ
         database="techstore_db"
     )
 
@@ -37,7 +37,7 @@ class Pedido(BaseModel):
     cliente: str
 
 
-@app.get("/categorias")
+@app.get("/categorias")   #Aqui te indica las categorias que es tambien conexion con la base de datos 
 def obtener_categorias():
  conn = get_db_connection()  
  cursor = conn.cursor()
@@ -51,7 +51,7 @@ def obtener_productos(categoria_id: Optional[int] = None):
         cursor = conn.cursor(dictionary=True)
 
         
-        query = "SELECT id_producto, nombre, marca, modelo, precio_venta, id_categoria, url_imagen FROM productos"
+        query = "SELECT id_producto, nombre, marca, modelo, precio_venta, id_categoria, url_imagen FROM productos"     #Aqui me indica que productos estan y como debe de entender los datos de la base de datos
         
         
         if categoria_id and categoria_id != 0:
@@ -70,10 +70,11 @@ def obtener_productos(categoria_id: Optional[int] = None):
     except Exception as e:
         return {"error": str(e)}
 
-@app.post("/enviar_pedido")
+@app.post("/enviar_pedido")    #Esta es la conexion del sistema de Quest por eso pide contraseña para aceder y marcar, si no llega a tener conexion  esta puesto de tal forma que marque error
 def enviar_pedido_a_cola(pedido: Pedido):
+
     url_solace = "https://mr-connection-t8jwqife9hr.messaging.solace.cloud:9443/ventas/pedidos"
-    usuario = SOLACE_USER
+    usuario = SOLACE_USER   #nota Marivi aqui esta la contraseña de las Quest
     password = SOLACE_PASSWORD
     
     try:
